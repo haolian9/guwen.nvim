@@ -3,14 +3,18 @@ local uv = vim.loop
 local facts = require("guwen.facts")
 
 local function resolve_root()
-  -- thanks to bfredl for this solution: https://github.com/neovim/neovim/issues/20340#issuecomment-1257142131
-  local source = debug.getinfo(1, "S").source
-  assert(vim.startswith(source, "@") and vim.endswith(source, "setup.lua"), "failed to resolve the root dir of guwen.nvim")
-  return vim.fn.fnamemodify(string.sub(source, 2), ":h:h:h")
+  local magic = "lua/guwen/init.lua"
+  local files = api.nvim_get_runtime_file(magic, false)
+  assert(files and #files == 1, "unable to find the root of guwen")
+  -- 2 to exclude the additional `/`
+  return string.sub(files[1], 1, -(#magic + 2))
 end
 
----@param opts table @{NormalFloat, FloatBorder}
--- * table.NormalFloat|FloatBorder: table, see api.nvim_set_hl
+---@class guwen.Opts
+---@field NormalFloat table? see the val param of api.nvim_set_hl
+---@field FloatBorder table? see the val param of api.nvim_set_hl
+
+---@param opts guwen.Opts
 return function(opts)
   opts = opts or {}
 

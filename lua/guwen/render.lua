@@ -80,9 +80,9 @@ local function render(max_width, max_height, source)
 
     api.nvim_buf_set_keymap(bufnr, "n", "q", string.format([[<cmd>lua vim.api.nvim_win_close(%d, true)<cr>]], win_id), { noremap = true })
     api.nvim_create_autocmd("WinLeave", {
+      once = true,
       callback = function()
         api.nvim_win_close(win_id, true)
-        return true
       end,
     })
   end
