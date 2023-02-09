@@ -1,6 +1,8 @@
 local api = vim.api
 local facts = require("guwen.facts")
 
+
+---@param source guwen.Source
 local function calc_lines(max_height, source)
   local count = 0
   local function accum(line)
@@ -17,7 +19,7 @@ local function calc_lines(max_height, source)
   return count
 end
 
----@param source table @{title: str, metadata: [str], contents: [str], notes: [str], width: int}
+---@param source guwen.Source
 local function render(max_width, max_height, source)
   local bufnr
   local height = 0
@@ -78,13 +80,11 @@ local function render(max_width, max_height, source)
     api.nvim_win_set_option(win_id, "wrap", true)
     api.nvim_win_set_hl_ns(win_id, facts.ns)
 
-    api.nvim_buf_set_keymap(bufnr, "n", "q", string.format([[<cmd>lua vim.api.nvim_win_close(%d, true)<cr>]], win_id), { noremap = true })
-    api.nvim_create_autocmd("WinLeave", {
-      once = true,
-      callback = function()
-        api.nvim_win_close(win_id, true)
-      end,
-    })
+    local function close_win()
+      api.nvim_win_close(win_id, true)
+    end
+    api.nvim_buf_set_keymap(bufnr, "n", "q", "", { noremap = true, callback = close_win })
+    api.nvim_create_autocmd("WinLeave", { once = true, callback = close_win })
   end
 
   return win_id

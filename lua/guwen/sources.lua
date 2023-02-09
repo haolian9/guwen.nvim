@@ -30,7 +30,7 @@ local function resolve_width(lines, max_width)
   return math.min(width, max_width)
 end
 
----@return table @{title: str, metadata: [str], contents: [str], notes: [str], width: int}
+---@return guwen.Source
 sources["楚辞"] = function(max_width)
   local record
   do
@@ -47,6 +47,7 @@ sources["楚辞"] = function(max_width)
   return { title = title, metadata = metadata, contents = contents, notes = {}, width = width }
 end
 
+---@return guwen.Source
 sources["宋词三百首"] = function(max_width)
   local record
   do
@@ -63,6 +64,7 @@ sources["宋词三百首"] = function(max_width)
   return { title = title, metadata = metadata, contents = contents, notes = {}, width = width }
 end
 
+---@return guwen.Source
 sources["唐诗三百首"] = function(max_width)
   local record
   do
@@ -83,6 +85,7 @@ sources["唐诗三百首"] = function(max_width)
   return { title = title, metadata = metadata, contents = contents, notes = {}, width = width }
 end
 
+---@return guwen.Source
 sources["古文观止"] = function(max_width)
   local record
   do
@@ -104,6 +107,7 @@ sources["古文观止"] = function(max_width)
   return { title = title, metadata = metadata, contents = contents, notes = {}, width = width }
 end
 
+---@return guwen.Source
 sources["诗经"] = function(max_width)
   local record
   do
@@ -122,6 +126,7 @@ sources["诗经"] = function(max_width)
   return { title = title, metadata = metadata, contents = contents, notes = {}, width = width }
 end
 
+---@return guwen.Source
 sources["论语"] = function(max_width)
   local record
   do

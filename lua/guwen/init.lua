@@ -1,3 +1,10 @@
+---@class guwen.Source
+---@field title string
+---@field metadata string[]
+---@field contents string[]
+---@field notes string[]
+---@field width number
+
 local M = {}
 
 local api = vim.api
