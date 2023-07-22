@@ -6,11 +6,16 @@ local sources = {}
 
 local function jsonload(path)
   local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
-  local stat = assert(uv.fs_fstat(file))
-  assert(stat.size < bit.lshift(1, 20))
-  local content = uv.fs_read(file, stat.size)
-  assert(#content == stat.size)
-  return vim.json.decode(content)
+  local ok, json = pcall(function()
+    local stat = assert(uv.fs_fstat(file))
+    assert(stat.size < bit.lshift(1, 20))
+    local content = uv.fs_read(file, stat.size)
+    assert(#content == stat.size)
+    return vim.json.decode(content)
+  end)
+  uv.fs_close(file)
+  if not ok then error(json) end
+  return json
 end
 
 local function center(text, width)
