@@ -1,21 +1,34 @@
+local facts = require("guwen.facts")
+
 local api = vim.api
 local uv = vim.loop
-local facts = require("guwen.facts")
+
+---@class guwen.Source
+---@field title string
+---@field metadata string[]
+---@field contents string[]
+---@field notes string[]
+---@field width integer
 
 local sources = {}
 
-local function jsonload(path)
-  local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
-  local ok, json = pcall(function()
-    local stat = assert(uv.fs_fstat(file))
-    assert(stat.size < bit.lshift(1, 20))
-    local content = uv.fs_read(file, stat.size)
-    assert(#content == stat.size)
-    return vim.json.decode(content)
-  end)
-  uv.fs_close(file)
-  if not ok then error(json) end
-  return json
+local jsonload
+do
+  local max_loadable_size = bit.lshift(1, 20)
+
+  function jsonload(path)
+    local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
+    local ok, json = pcall(function()
+      local stat = assert(uv.fs_fstat(file))
+      assert(stat.size < max_loadable_size)
+      local content = uv.fs_read(file, stat.size)
+      assert(#content == stat.size)
+      return vim.json.decode(content)
+    end)
+    uv.fs_close(file)
+    if not ok then error(json) end
+    return json
+  end
 end
 
 local function center(text, width)

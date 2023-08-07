@@ -1,15 +1,9 @@
----@class guwen.Source
----@field title string
----@field metadata string[]
----@field contents string[]
----@field notes string[]
----@field width number
-
 local M = {}
 
-local api = vim.api
-local sources = require("guwen.sources")
 local render = require("guwen.render")
+local sources = require("guwen.sources")
+
+local api = vim.api
 
 local last_win
 
@@ -29,13 +23,5 @@ M["楚辞一篇"] = entrypoint("楚辞")
 M["古文一篇"] = entrypoint("古文观止")
 M["诗经一篇"] = entrypoint("诗经")
 M["论语一篇"] = entrypoint("论语")
-
-M._completion = (function()
-  local candidates = {}
-  for key, _ in pairs(M) do
-    if key ~= "_completion" then table.insert(candidates, key) end
-  end
-  return candidates
-end)()
 
 return M

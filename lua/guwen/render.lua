@@ -1,31 +1,37 @@
-local api = vim.api
+local Ephemeral = require("infra.Ephemeral")
+local fn = require("infra.fn")
+local handyclosekeys = require("infra.handyclosekeys")
+local prefer = require("infra.prefer")
+
 local facts = require("guwen.facts")
 
+local api = vim.api
 
+---@param max_height integer
 ---@param source guwen.Source
+---@return integer
 local function calc_lines(max_height, source)
   local count = 0
-  local function accum(line)
-    count = count + math.ceil(api.nvim_strwidth(line) / source.width)
-  end
+  local function accum(line) count = count + math.ceil(api.nvim_strwidth(line) / source.width) end
 
   accum(source.title)
-  for _, lines in ipairs({ source.metadata, source.contents, source.notes }) do
-    for _, line in ipairs(lines) do
-      accum(line)
-      if count >= max_height then return max_height end
-    end
+  for line in fn.chained(source.metadata, source.contents, source.notes) do
+    accum(line)
+    if count >= max_height then return max_height end
   end
+
   return count
 end
 
+---@param max_width integer
+---@param max_height integer
 ---@param source guwen.Source
-local function render(max_width, max_height, source)
+---@return integer @winid
+return function(max_width, max_height, source)
   local bufnr
   local height = 0
   do
-    bufnr = api.nvim_create_buf(false, true)
-    api.nvim_buf_set_option(bufnr, "bufhidden", "wipe")
+    bufnr = Ephemeral()
 
     height = calc_lines(max_height, source)
 
@@ -62,7 +68,7 @@ local function render(max_width, max_height, source)
     height = math.min(height, max_height)
   end
 
-  local win_id
+  local winid
   do
     local width = source.width
 
@@ -73,28 +79,15 @@ local function render(max_width, max_height, source)
     if height < max_height then row = math.floor((max_height - height) / 2) end
 
     -- stylua: ignore
-    win_id = api.nvim_open_win(bufnr, true, {
+    winid = api.nvim_open_win(bufnr, true, {
       relative = "win", style = "minimal", border = "single",
       row = row, col = col, width = width, height = height,
     })
-    api.nvim_win_set_option(win_id, "wrap", true)
-    api.nvim_win_set_hl_ns(win_id, facts.ns)
+    prefer.wo(winid, "wrap", true)
+    api.nvim_win_set_hl_ns(winid, facts.floatwin_ns)
 
-    local function close_win()
-      api.nvim_win_close(win_id, true)
-    end
-    api.nvim_buf_set_keymap(bufnr, "n", "q", "", { noremap = true, callback = close_win })
-    api.nvim_create_autocmd("WinLeave", { once = true, callback = close_win })
+    handyclosekeys(bufnr)
   end
 
-  return win_id
-end
-
-return function(...)
-  local ok, err = xpcall(render, debug.traceback, ...)
-  if not ok then
-    vim.notify(vim.inspect({ ... }))
-    error(err)
-  end
-  return err
+  return winid
 end
