@@ -1,6 +1,7 @@
+local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
+local rifts = require("infra.rifts")
 local fn = require("infra.fn")
-local handyclosekeys = require("infra.handyclosekeys")
 local prefer = require("infra.prefer")
 
 local facts = require("guwen.facts")
@@ -31,7 +32,7 @@ return function(max_width, max_height, source)
   local bufnr
   local height = 0
   do
-    bufnr = Ephemeral()
+    bufnr = Ephemeral({ handyclose = true })
 
     height = calc_lines(max_height, source)
 
@@ -70,23 +71,11 @@ return function(max_width, max_height, source)
 
   local winid
   do
-    local width = source.width
+    local winopts = dictlib.merged({ relative = "win", border = "single" }, rifts.geo.editor(source.width, height))
+    winid = api.nvim_open_win(bufnr, true, winopts)
 
-    local col = 0
-    if width < max_width then col = math.floor((max_width - width) / 2) end
-
-    local row = 0
-    if height < max_height then row = math.floor((max_height - height) / 2) end
-
-    -- stylua: ignore
-    winid = api.nvim_open_win(bufnr, true, {
-      relative = "win", style = "minimal", border = "single",
-      row = row, col = col, width = width, height = height,
-    })
     prefer.wo(winid, "wrap", true)
-    api.nvim_win_set_hl_ns(winid, facts.floatwin_ns)
-
-    handyclosekeys(bufnr)
+    api.nvim_win_set_hl_ns(winid, rifts.ns)
   end
 
   return winid
