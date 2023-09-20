@@ -24,4 +24,15 @@ M["古文一篇"] = entrypoint("古文观止")
 M["诗经一篇"] = entrypoint("诗经")
 M["论语一篇"] = entrypoint("论语")
 
+M.comp = {}
+do
+  function M.comp.available_sources()
+    local names = {}
+    for key in pairs(M) do
+      if key ~= "comp" then table.insert(names, key) end
+    end
+    return names
+  end
+end
+
 return M
