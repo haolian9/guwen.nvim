@@ -1,10 +1,8 @@
 local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
-local rifts = require("infra.rifts")
 local fn = require("infra.fn")
 local prefer = require("infra.prefer")
-
-local facts = require("guwen.facts")
+local rifts = require("infra.rifts")
 
 local api = vim.api
 
@@ -72,7 +70,8 @@ return function(max_width, max_height, source)
   local winid
   do
     local winopts = dictlib.merged({ relative = "win", border = "single" }, rifts.geo.editor(source.width, height))
-    winid = api.nvim_open_win(bufnr, true, winopts)
+    --canot use rifts.open.fragment here, since it forces relative=editor
+    winid = rifts.open.win(bufnr, true, winopts)
 
     prefer.wo(winid, "wrap", true)
     api.nvim_win_set_hl_ns(winid, rifts.ns)
