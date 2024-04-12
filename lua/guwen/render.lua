@@ -1,3 +1,4 @@
+local buflines = require("infra.buflines")
 local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
 local fn = require("infra.fn")
@@ -34,34 +35,30 @@ return function(max_width, max_height, source)
 
     height = calc_lines(max_height, source)
 
-    local start, stop = 0, 0
-    local function advance_bounds(n)
-      start = stop
-      stop = start + n
-    end
+    local lnum = 0
 
-    advance_bounds(1)
-    api.nvim_buf_set_lines(bufnr, start, stop, false, { source.title })
+    buflines.replace(bufnr, lnum, source.title)
+    lnum = lnum + 1
 
     if #source.metadata > 0 then
-      advance_bounds(#source.metadata)
-      api.nvim_buf_set_lines(bufnr, start, stop, false, source.metadata)
+      buflines.appends(bufnr, lnum, source.metadata)
+      lnum = lnum + #source.metadata
     end
 
-    advance_bounds(1)
-    api.nvim_buf_set_lines(bufnr, start, stop, false, { "" })
+    buflines.append(bufnr, lnum, "")
+    lnum = lnum + 1
     height = height + 1
 
-    advance_bounds(#source.contents)
-    api.nvim_buf_set_lines(bufnr, start, stop, false, source.contents)
+    buflines.appends(bufnr, lnum, source.contents)
+    lnum = lnum + #source.contents
 
     if #source.notes > 0 then
-      advance_bounds(1)
-      api.nvim_buf_set_lines(bufnr, start, stop, false, { "" })
+      buflines.append(bufnr, lnum, "")
+      lnum = lnum + 1
       height = height + 1
 
-      advance_bounds(#source.notes)
-      api.nvim_buf_set_lines(bufnr, start, stop, false, source.notes)
+      buflines.appends(bufnr, lnum, source.notes)
+      lnum = lnum + #source.notes
     end
 
     height = math.min(height, max_height)
