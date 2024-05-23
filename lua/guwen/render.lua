@@ -1,7 +1,7 @@
 local buflines = require("infra.buflines")
 local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
-local fn = require("infra.fn")
+local itertools = require("infra.itertools")
 local prefer = require("infra.prefer")
 local rifts = require("infra.rifts")
 
@@ -15,7 +15,7 @@ local function calc_lines(max_height, source)
   local function accum(line) count = count + math.ceil(api.nvim_strwidth(line) / source.width) end
 
   accum(source.title)
-  for line in fn.chained(source.metadata, source.contents, source.notes) do
+  for line in itertools.chained(source.metadata, source.contents, source.notes) do
     accum(line)
     if count >= max_height then return max_height end
   end
