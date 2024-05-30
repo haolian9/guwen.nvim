@@ -16,7 +16,12 @@ local jsonload
 do
   local max_loadable_size = bit.lshift(1, 20)
 
+  ---@type {[string]: table}
+  local cache = setmetatable({}, { __mode = "v" })
+
   function jsonload(path)
+    if cache[path] ~= nil then return path end
+
     local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
     local ok, json = pcall(function()
       local stat = assert(uv.fs_fstat(file))
@@ -27,6 +32,8 @@ do
     end)
     uv.fs_close(file)
     if not ok then error(json) end
+
+    cache[path] = json
     return json
   end
 end
