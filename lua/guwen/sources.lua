@@ -1,7 +1,7 @@
 local facts = require("guwen.facts")
 
 local api = vim.api
-local uv = vim.loop
+local uv = vim.uv
 
 ---@class guwen.Source
 ---@field title string
