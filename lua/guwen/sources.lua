@@ -20,7 +20,7 @@ do
   local cache = setmetatable({}, { __mode = "v" })
 
   function jsonload(path)
-    if cache[path] ~= nil then return path end
+    if cache[path] ~= nil then return cache[path] end
 
     local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
     local ok, json = pcall(function()
