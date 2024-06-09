@@ -1,7 +1,8 @@
+local iuv = require("infra.iuv")
+
 local facts = require("guwen.facts")
 
 local api = vim.api
-local uv = vim.uv
 
 ---@class guwen.Source
 ---@field title string
@@ -22,15 +23,15 @@ do
   function jsonload(path)
     if cache[path] ~= nil then return cache[path] end
 
-    local file = assert(uv.fs_open(path, "r", tonumber("600", 8)))
+    local file = iuv.fs_open(path, "r", tonumber("600", 8))
     local ok, json = pcall(function()
-      local stat = assert(uv.fs_fstat(file))
+      local stat = iuv.fs_fstat(file)
       assert(stat.size < max_loadable_size)
-      local content = uv.fs_read(file, stat.size)
+      local content = iuv.fs_read(file, stat.size)
       assert(#content == stat.size)
       return vim.json.decode(content)
     end)
-    uv.fs_close(file)
+    iuv.fs_close(file)
     if not ok then error(json) end
 
     cache[path] = json
