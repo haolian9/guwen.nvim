@@ -12,7 +12,14 @@ local api = vim.api
 ---@return integer
 local function calc_lines(max_height, source)
   local count = 0
-  local function accum(line) count = count + math.ceil(api.nvim_strwidth(line) / source.width) end
+  local function accum(line)
+    local width = api.nvim_strwidth(line)
+    if width == 0 then
+      count = count + 1
+    else
+      count = count + math.ceil(width / source.width)
+    end
+  end
 
   accum(source.title)
   for line in itertools.chained(source.metadata, source.contents, source.notes) do
