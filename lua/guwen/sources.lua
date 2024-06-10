@@ -1,3 +1,4 @@
+local its = require("infra.its")
 local iuv = require("infra.iuv")
 
 local facts = require("guwen.facts")
@@ -48,11 +49,7 @@ local function center(text, width)
 end
 
 local function resolve_width(lines, max_width)
-  local width = 0
-  for _, line in ipairs(lines) do
-    local line_width = api.nvim_strwidth(line)
-    if line_width > width then width = line_width end
-  end
+  local width = its(lines):map(api.nvim_strwidth):max() or 0
   return math.min(width, max_width)
 end
 
