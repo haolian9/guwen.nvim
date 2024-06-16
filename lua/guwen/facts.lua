@@ -1,10 +1,10 @@
 local M = {}
 
 local fs = require("infra.fs")
+local resolve_plugin_root = require("infra.resolve_plugin_root")
 
 do
-  --transform: /root/lua/guwen/../..
-  local root = fs.parent(fs.parent(fs.resolve_plugin_root("guwen")))
+  local root = resolve_plugin_root("guwen")
 
   M.fs = {
     ["楚辞"] = fs.joinpath(root, "vendor/chinese-poetry/chuci/chuci.json"),

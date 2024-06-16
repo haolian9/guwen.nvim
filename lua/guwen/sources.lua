@@ -1,9 +1,8 @@
 local its = require("infra.its")
 local iuv = require("infra.iuv")
+local ni = require("infra.ni")
 
 local facts = require("guwen.facts")
-
-local api = vim.api
 
 ---@class guwen.Source
 ---@field title string
@@ -42,14 +41,14 @@ end
 
 local function center(text, width)
   assert(text ~= nil and width ~= nil)
-  local text_width = api.nvim_strwidth(text)
+  local text_width = ni.strwidth(text)
   if text_width >= width then return text end
   local padding = string.rep(" ", math.floor((width - text_width) / 2))
   return padding .. text
 end
 
 local function resolve_width(lines, max_width)
-  local width = its(lines):map(api.nvim_strwidth):max() or 0
+  local width = its(lines):map(ni.strwidth):max() or 0
   return math.min(width, max_width)
 end
 

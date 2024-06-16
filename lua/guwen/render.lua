@@ -2,10 +2,9 @@ local buflines = require("infra.buflines")
 local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
 local itertools = require("infra.itertools")
+local ni = require("infra.ni")
 local prefer = require("infra.prefer")
 local rifts = require("infra.rifts")
-
-local api = vim.api
 
 ---@param max_height integer
 ---@param source guwen.Source
@@ -13,7 +12,7 @@ local api = vim.api
 local function calc_lines(max_height, source)
   local count = 0
   local function accum(line)
-    local width = api.nvim_strwidth(line)
+    local width = ni.strwidth(line)
     if width == 0 then
       count = count + 1
     else
@@ -78,7 +77,7 @@ return function(max_width, max_height, source)
     winid = rifts.open.win(bufnr, true, winopts)
 
     prefer.wo(winid, "wrap", true)
-    api.nvim_win_set_hl_ns(winid, rifts.ns)
+    ni.win_set_hl_ns(winid, rifts.ns)
   end
 
   return winid

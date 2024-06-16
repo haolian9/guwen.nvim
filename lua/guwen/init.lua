@@ -1,18 +1,18 @@
 local M = {}
 
+local ni = require("infra.ni")
+
 local render = require("guwen.render")
 local sources = require("guwen.sources")
-
-local api = vim.api
 
 local last_win
 
 local function entrypoint(src_name)
   return function()
-    if last_win ~= nil and api.nvim_win_is_valid(last_win) then api.nvim_win_close(last_win, true) end
-    local host_win_id = api.nvim_get_current_win()
-    local win_width = api.nvim_win_get_width(host_win_id)
-    local win_height = api.nvim_win_get_height(host_win_id)
+    if last_win ~= nil and ni.win_is_valid(last_win) then ni.win_close(last_win, true) end
+    local host_win_id = ni.get_current_win()
+    local win_width = ni.win_get_width(host_win_id)
+    local win_height = ni.win_get_height(host_win_id)
     last_win = render(win_width, win_height, sources[src_name](win_width))
   end
 end
