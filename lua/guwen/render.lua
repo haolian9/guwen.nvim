@@ -37,7 +37,7 @@ return function(max_width, max_height, source)
   local bufnr
   local height = 0
   do
-    bufnr = Ephemeral({ handyclose = true })
+    bufnr = Ephemeral({ namepat = "guwen://{bufnr}", handyclose = true })
 
     height = calc_lines(max_height, source)
 
