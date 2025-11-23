@@ -4,7 +4,7 @@
 
 ## 使用环境
 * linux
-* nvim 0.9.*
+* nvim 0.11.*
 * haolian9/infra.nvim
 
 ## 使用
