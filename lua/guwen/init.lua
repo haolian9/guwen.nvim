@@ -1,28 +1,41 @@
 local M = {}
 
+local bufmap = require("infra.keymap.buffer")
+local mi = require("infra.mi")
 local ni = require("infra.ni")
 
 local render = require("guwen.render")
 local sources = require("guwen.sources")
 
-local last_win
+local lastwin
 
-local function entrypoint(src_name)
-  return function()
-    if last_win ~= nil and ni.win_is_valid(last_win) then ni.win_close(last_win, true) end
-    local host_win_id = ni.get_current_win()
-    local win_width = ni.win_get_width(host_win_id)
-    local win_height = ni.win_get_height(host_win_id)
-    last_win = render(win_width, win_height, sources[src_name](win_width))
-  end
+local function need_close_lastwin()
+  if lastwin == nil then return false end
+  if not ni.win_is_valid(lastwin) then return false end
+  if mi.win_is_float(lastwin) then return false end
+  ---if lastwin is landed, leave it to user
+  return true
 end
 
-M["唐诗一首"] = entrypoint("唐诗三百首")
-M["宋词一首"] = entrypoint("宋词三百首")
-M["楚辞一篇"] = entrypoint("楚辞")
-M["古文一篇"] = entrypoint("古文观止")
-M["诗经一篇"] = entrypoint("诗经")
-M["论语一篇"] = entrypoint("论语")
+local function Open(src_name)
+  local open
+  open = function()
+    if need_close_lastwin() then ni.win_close(lastwin, true) end
+    local max_width, max_height = vim.go.columns, vim.go.lines
+    local winid, bufnr = render(max_width, max_height, sources[src_name](max_width))
+    local bm = bufmap.wraps(bufnr)
+    bm.n("gn", function() open() end)
+    lastwin = winid
+  end
+  return open
+end
+
+M["唐诗一首"] = Open("唐诗三百首")
+M["宋词一首"] = Open("宋词三百首")
+M["楚辞一篇"] = Open("楚辞")
+M["古文一篇"] = Open("古文观止")
+M["诗经一篇"] = Open("诗经")
+M["论语一篇"] = Open("论语")
 
 M.comp = {}
 do

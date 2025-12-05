@@ -1,11 +1,12 @@
 local buflines = require("infra.buflines")
-local dictlib = require("infra.dictlib")
 local Ephemeral = require("infra.Ephemeral")
 local itertools = require("infra.itertools")
+local listlib = require("infra.listlib")
 local ni = require("infra.ni")
 local prefer = require("infra.prefer")
 local rifts = require("infra.rifts")
 
+---calculate height with &wrap
 ---@param max_height integer
 ---@param source guwen.Source
 ---@return integer
@@ -32,53 +33,39 @@ end
 ---@param max_width integer
 ---@param max_height integer
 ---@param source guwen.Source
----@return integer @winid
+---@return integer winid
+---@return integer bufnr
 return function(max_width, max_height, source)
-  local bufnr
-  local height = 0
+  local lines, height, width = {}, 0, 0
   do
-    bufnr = Ephemeral({ namepat = "guwen://{bufnr}", handyclose = true })
-
     height = calc_lines(max_height, source)
-
-    local lnum = 0
-
-    buflines.replace(bufnr, lnum, source.title)
-    lnum = lnum + 1
-
-    if #source.metadata > 0 then
-      buflines.appends(bufnr, lnum, source.metadata)
-      lnum = lnum + #source.metadata
-    end
-
-    buflines.append(bufnr, lnum, "")
-    lnum = lnum + 1
+    table.insert(lines, source.title)
+    if #source.metadata > 0 then listlib.extend(lines, source.metadata) end
+    table.insert(lines, "")
     height = height + 1
-
-    buflines.appends(bufnr, lnum, source.contents)
-    lnum = lnum + #source.contents
-
+    listlib.extend(lines, source.contents)
     if #source.notes > 0 then
-      buflines.append(bufnr, lnum, "")
-      lnum = lnum + 1
+      table.insert(lines, "")
       height = height + 1
-
-      buflines.appends(bufnr, lnum, source.notes)
-      lnum = lnum + #source.notes
+      listlib.extend(lines, source.notes)
     end
-
     height = math.min(height, max_height)
+    width = math.min(source.width, max_width)
   end
 
-  local winid
-  do
-    local winopts = dictlib.merged({ relative = "win", border = "single" }, rifts.geo.editor(source.width, height))
-    --canot use rifts.open.fragment here, since it forces relative=editor
-    winid = rifts.open.win(bufnr, true, winopts)
+  local bufnr = Ephemeral({ namepat = "guwen://{bufnr}", handyclose = true }, lines)
 
-    prefer.wo(winid, "wrap", true)
-    ni.win_set_hl_ns(winid, rifts.ns)
-  end
+  local winid = rifts.open.fragment( --
+    bufnr,
+    true,
+    { relative = "editor", border = "single" },
+    { height = height, width = width, horizontal = "mid", vertical = "mid" }
+  )
 
-  return winid
+  local wo = prefer.win(winid)
+  wo.wrap = true
+  wo.winfixheight = true
+  wo.winfixwidth = true
+
+  return winid, bufnr
 end
