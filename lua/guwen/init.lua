@@ -12,8 +12,8 @@ local lastwin
 local function need_close_lastwin()
   if lastwin == nil then return false end
   if not ni.win_is_valid(lastwin) then return false end
-  if mi.win_is_float(lastwin) then return false end
   ---if lastwin is landed, leave it to user
+  if mi.win_is_landed(lastwin) then return false end
   return true
 end
 
@@ -24,7 +24,7 @@ local function Open(src_name)
     local max_width, max_height = vim.go.columns, vim.go.lines
     local winid, bufnr = render(max_width, max_height, sources[src_name](max_width))
     local bm = bufmap.wraps(bufnr)
-    bm.n("gn", function() open() end)
+    bm.n("gn", open)
     lastwin = winid
   end
   return open
